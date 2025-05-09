@@ -1,0 +1,170 @@
+---
+title: "Bringing Certainty to Uncertainty"
+subtitle: "A hands-on tutorial on how to accessibly and viscerally* visualize confidence and significance of a multiple regression model within two dimensions"
+author: 
+  - name: "Lowell Monis^[Michigan State University, monislow@msu.edu]"
+date: "March 31, 2025"
+
+description: >
+  This tutorial explores how to accessibly visualize confidence intervals and statistical significance in multiple regression models using two-dimensional plots and effective color palettes.
+
+keywords: [uncertainty visualization, multiple regression, color palettes, statistical graphics, R tutorial, accessible design, confidence bands]
+
+tags: [data-visualization, regression, confidence-intervals, uncertainty, color-palettes, statistical-graphics, R, tutorial, accessible-design, color-theory, data-science-education, statistical modeling]
+
+output:
+  html_document: 
+    theme: "flatly"
+    highlight: "tango"
+    toc: true 
+    toc_depth: 2
+    toc_float: 
+      collapsed: false
+      smooth_scroll: true
+    code_folding: "show"
+    code_download: true
+    self_contained: true
+    number_sections: false
+    df_print: "paged"
+    includes:
+      in_header: "copy-code.html"
+    css: theme.css
+
+bibliography: biblio.bib
+
+params:
+  version: 1.0
+---
+
+<style>
+.copy-button {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  font-size: 0.8em;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+pre.code-with-button {
+  position: relative;
+}
+</style>
+
+
+*relating to deep inward feelings rather than to the intellect (@oxford);  dealing with crude or elemental emotions (@merriam)
+
+It’s human nature to wonder how things are related.
+
+We ask questions like:
+
++ Does more screen time affect how well students sleep?
++ Do heavier cars get worse fuel economy?
++ Do taller people tend to run faster?
++ Does the amount of training impact an athlete’s performance?
++ Do different bird species lay eggs of different sizes?
+
+Whether in science, health, sports, or nature, we're wired to find patterns. And often, those patterns reveal themselves through relationships between variables.
+
+Regression models help us formalize these relationships. They allow us to say, "when $x$ increases, how does $y$ change?" But every model we fit is just a best guess based on the data we have — and we know that data is often noisy, incomplete, or irregular.
+
+This is where uncertainty enters the picture.
+
+When we present a model without visualizing uncertainty, we’re giving a false sense of precision. That’s why concepts like confidence intervals, standard error, and significance are so important — they help communicate how sure we are about what we’re saying.
+
+In this tutorial, you’ll learn how to:
+
+1. Build and interpret a multiple regression model
+2. Visually represent uncertainty and confidence intervals
+3. Use accessible color palettes to support understanding for all viewers
+4. Allow users to experiment with visual representations of certainty
+
+By the end, you won’t just visualize better models, but more honest and interpretable ones.
+
+# But first: what is regression?
+
+Source: @regression
+
+Regression analysis is the process of estimating the relationship between a dependent variable (what you're trying to predict) and one or more independent variables (the predictors). At its core, regression tries to fit a function that best explains the observed data under some error criterion.
+
+Put simply:
+
+> You have data. You suspect a relationship. Regression helps you find and test that relationship---and use it to interpolate (predict within your range) or extrapolate (predict beyond your range).
+
+Regression is used to understand how different quantities influence each other, and predict outcomes for new or missing data. It can also be used to quantify uncertainty around predictions.
+
+Some real-world applications include:
+
+- Predicting a house price from features like square footage and location
+- Estimating how training hours affect athletic performance
+- Modeling the relationship between temperature and electricity usage
+
+## Core regression techniques
+
+Regression comes in many forms, each with its own assumptions and strengths. Below are the most common types:
+
+### 1. Linear Regression
+
+The goal of this method is to fit a straight, linear line to the data by minimizing the sum of squared residuals, where residuals are the linear distances between this line of best fit and the original data points. This method is also called the *ordinary least squares* (OLS) method.
+
+Linear regression assumes a straight-line relationship. It works well when changes in $x$ lead to proportionate changes in $y$.
+
+The following formula represents linear regression:
+
+$$y=\beta_0+\beta_1x+\epsilon$$
+
+where $x$ is the predictor (independent) variable, $y$ is the predicted (dependent) value, $\beta_0$ is the intercept value for the best-fit line, $\beta_1$ is the coefficient for the predictor variable (a one-unit increase in $x$ leads to a $\beta_1$ increase in $y$), and $\epsilon$ is the error term (difference between the observed value associated with $x$ and the predicted value from the regression equation, $y(x)$).
+
+### 2. Polynomial Regression
+
+The goal of this method is to fit a curved function, rather than a linear one, to the given data. This method is used to capture non-linear trends. This is still, however, considered a linear model in terms of parameters, but it allows the curve to bend, making it more flexible. An example of this is modeling population growth.
+
+The following is a general formula for polynomial regression:
+
+$$y=\sum_{i=0}^{n}\beta_nx^n+\epsilon$$
+
+The terms of this model are similar to those of the linear model. Note that $\sum$ here means a *summation*, i.e., it denotes the sum of all terms of the given form up till $n$ times. For example, consider a polynomial regression model of degree 2:
+
+$$y=\beta_0+\beta_1x +\beta_2x^2+\epsilon$$
+
+A polynomial regression model of degree 1 is an OLS model.
+
+### 3. Logistic Regression
+
+The goal of this method is to predict binary outcomes (yes/no, pass/fail, true/false, etc.) by modeling the probability of class membership. Logistic regression is primarily used for classification. Logistic regression can be modeled by the following formula:
+
+$$P(y=1|x)=\frac{1}{1+e^{-(\beta_0+\beta_1x)}}$$
+If the probability returned by this function is high, the result will be 1, else 0. The function models continuous values, but it does not predict a continuous value, rather the *probability of a discrete event*.
+
+### Other Types of Regression
+
+These are more advanced or specialized but follow similar principles.
+
+- Ridge Regression: Adds a penalty for large coefficients (helps with multicollinearity).
+- Lasso Regression: Encourages sparsity---helpful for feature selection.
+- Elastic Net: A combination of Ridge and Lasso.
+- Quantile Regression: Estimates conditional quantiles, not just the mean.
+- Nonparametric Regression: Makes fewer assumptions about the form of the function (e.g., splines, LOESS).
+
+## Interpolation vs Extrapolation
+
+Assume you are trying to predict height using body weight as a predictor. You have height data for individuals weighing 100 lbs, 150 lbs, and 200 lbs. **Note:** Actual regression models use a lot more data points. This is just for illustrative purposes.
+
+Now, you want to predict the height of someone weighing 125 lbs. This is within the data range of 100 to 200 lbs. Thus, when you use the regression model here, you *interpolate*.
+
+You also want to predict the height of someone weighing 250 lbs. This is outside the predictor data range. So, when you use the model here, you *extrapolate*. Extrapolation is generally not a good practice, and can result in false correlations.
+
+<center>
+```{r echo = FALSE, results = 'asis'}
+image = "https://imgs.xkcd.com/comics/extrapolating.png"
+cat(paste0('<img src="', image,  '"><br>')) 
+```
+Image Source: @extrapolating
+</center>
+
+# References
