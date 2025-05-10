@@ -1,6 +1,6 @@
 ---
 title: "Bringing Certainty to Uncertainty"
-subtitle: "A hands-on tutorial on how to accessibly and viscerally* visualize confidence and significance of a multiple regression model within two dimensions"
+subtitle: "A hands-on tutorial on how to accessibly and viscerally* visualize uncertainty, confidence and significance in the correlations of a multiple regression model within two dimensions."
 author: 
   - name: "Lowell Monis^[Michigan State University, monislow@msu.edu]"
 date: "March 31, 2025"
@@ -86,9 +86,11 @@ In this tutorial, you’ll learn how to:
 
 By the end, you won’t just visualize better models, but more honest and interpretable ones.
 
-# But first: what is regression?
+# But first, what is regression?
 
 Source: @regression
+
+A simplified primer on regression would be the best way to simplify the visualization of confidence and uncertainty in correlations.
 
 Regression analysis is the process of estimating the relationship between a dependent variable (what you're trying to predict) and one or more independent variables (the predictors). At its core, regression tries to fit a function that best explains the observed data under some error criterion.
 
@@ -157,7 +159,7 @@ Assume you are trying to predict height using body weight as a predictor. You ha
 
 Now, you want to predict the height of someone weighing 125 lbs. This is within the data range of 100 to 200 lbs. Thus, when you use the regression model here, you *interpolate*.
 
-You also want to predict the height of someone weighing 250 lbs. This is outside the predictor data range. So, when you use the model here, you *extrapolate*. Extrapolation is generally not a good practice, and can result in false correlations.
+You also want to predict the height of someone weighing 250 lbs. This is outside the predictor data range. So, when you use the model here, you *extrapolate*. Extrapolation is generally not a good practice, and can result in false and nonsensical predictions.
 
 <center>
 ```{r echo = FALSE, results = 'asis'}
@@ -166,5 +168,34 @@ cat(paste0('<img src="', image,  '"><br>'))
 ```
 Image Source: @extrapolating
 </center>
+
+## Why does regression matter in practice?
+
+Regression is not just about fitting lines---it’s about interpreting and communicating relationships. This includes:
+
+- Showing how strongly variables are associated
+- Accounting for noise and randomness in data
+- Visualizing uncertainty through confidence bands and error margins
+- Choosing color and layout wisely so viewers don't misinterpret your results
+
+## Multiple linear regression
+
+This is an extension of simple linear regression that models the relationship between one dependent variable and two or more independent variables. Instead of fitting a line through points in two-dimensional space, multiple linear regression fits a hyperplane in a multidimensional feature space. The general form of the model for $n$ variables is:
+
+$$y=\beta_0+\sum_{i=1}^{n}\beta_nx_n+\epsilon$$
+
+Note the subscript for the variables, as opposed to the superscript in polynomial regression (essentially, polynomial regression is completely different from multiple linear regression).
+
+Multiple regression allows us to evaluate the influence of each variable while controlling for the others, making it a powerful tool for uncovering complex relationships in data. However, it also comes with assumptions---such as linearity, independence of errors, homoscedasticity, and the lack of multicollinearity---which must be checked to ensure the model's complete validity.
+
+> When the independent predictors are too strongly related to each other (i.e., each predictor is a linear combination of the others), the data is multicollinear.
+
+> When the spread, or the variance of the errors are roughly the same across all values of the predictors, the data is homoscedastic.
+
+> When the prediction errors, are not correlated with each other, one can say that the data is independent of errors.
+
+> When the relationship between each predictor and the outcome is assumed to be a straight line, the data is linear. Linearity describes how well a measurement or process stays proportional across different input values. 
+
+
 
 # References
