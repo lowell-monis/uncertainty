@@ -1,0 +1,186 @@
+---
+title: "A primer on regression"
+author: 
+  - name: "Lowell Monis^[Michigan State University, monislow@msu.edu]"
+output:
+  html_document: 
+    theme: "flatly"
+    highlight: "tango"
+    toc: true
+    toc_float: true
+    code_folding: "show"
+    self_contained: true
+    number_sections: false
+    df_print: "paged"
+    includes:
+      in_header: "copy-code.html"
+    css: theme.css
+
+params:
+  version: 1.0
+---
+
+***
+
+<div style="text-align: center;">
+<a href="index.html" style="background-color:#2C3E50; color:white; padding:10px 16px; text-decoration:none; border-radius:5px;">Go back to tutorial</a>
+</div>
+
+***
+
+Regression analysis is the process of estimating the relationship between a dependent variable (what you're trying to predict) and one or more independent variables (the predictors). At its core, regression tries to fit a function that best explains the observed data under some error criterion.
+
+Put simply:
+
+> You have data. You suspect a relationship. Regression helps you find and test that relationship---and use it to interpolate (predict within your range) or extrapolate (predict beyond your range).
+
+Regression is used to understand how different quantities influence each other, and predict outcomes for new or missing data. It can also be used to quantify uncertainty around predictions.
+
+Some real-world applications include:
+
+- Predicting a house price from features like square footage and location
+- Estimating how training hours affect athletic performance
+- Modeling the relationship between temperature and electricity usage
+
+## Core regression techniques
+
+Regression comes in many forms, each with its own assumptions and strengths. Below are the most common types:
+
+### 1. Linear Regression
+
+The goal of this method is to fit a straight, linear line to the data by minimizing the sum of squared residuals, where residuals are the linear distances between this line of best fit and the original data points. This method is also called the *ordinary least squares* (OLS) method.
+
+Linear regression assumes a straight-line relationship. It works well when changes in $x$ lead to proportionate changes in $y$.
+
+The following formula represents linear regression:
+
+$$y=\beta_0+\beta_1x+\epsilon$$
+
+where $x$ is the predictor (independent) variable, $y$ is the predicted (dependent) value, $\beta_0$ is the intercept value for the best-fit line, $\beta_1$ is the coefficient for the predictor variable (a one-unit increase in $x$ leads to a $\beta_1$ increase in $y$), and $\epsilon$ is the error term (difference between the observed value associated with $x$ and the predicted value from the regression equation, $y(x)$).
+
+### 2. Polynomial Regression
+
+The goal of this method is to fit a curved function, rather than a linear one, to the given data. This method is used to capture non-linear trends. This is still, however, considered a linear model in terms of parameters, but it allows the curve to bend, making it more flexible. An example of this is modeling population growth.
+
+The following is a general formula for polynomial regression:
+
+$$y=\sum_{i=0}^{n}\beta_nx^n+\epsilon$$
+
+The terms of this model are similar to those of the linear model. Note that $\sum$ here means a *summation*, i.e., it denotes the sum of all terms of the given form up till $n$ times. For example, consider a polynomial regression model of degree 2:
+
+$$y=\beta_0+\beta_1x +\beta_2x^2+\epsilon$$
+
+A polynomial regression model of degree 1 is an OLS model.
+
+### 3. Logistic Regression
+
+The goal of this method is to predict binary outcomes (yes/no, pass/fail, true/false, etc.) by modeling the probability of class membership. Logistic regression is primarily used for classification. Logistic regression can be modeled by the following formula:
+
+$$P(y=1|x)=\frac{1}{1+e^{-(\beta_0+\beta_1x)}}$$
+If the probability returned by this function is high, the result will be 1, else 0. The function models continuous values, but it does not predict a continuous value, rather the *probability of a discrete event*.
+
+### Other Types of Regression
+
+These are more advanced or specialized but follow similar principles.
+
+- Ridge Regression: Adds a penalty for large coefficients (helps with multicollinearity).
+- Lasso Regression: Encourages sparsity---helpful for feature selection.
+- Elastic Net: A combination of Ridge and Lasso.
+- Quantile Regression: Estimates conditional quantiles, not just the mean.
+- Nonparametric Regression: Makes fewer assumptions about the form of the function (e.g., splines, LOESS).
+
+## Interpolation vs Extrapolation
+
+Assume you are trying to predict height using body weight as a predictor. You have height data for individuals weighing 100 lbs, 150 lbs, and 200 lbs. **Note:** Actual regression models use a lot more data points. This is just for illustrative purposes.
+
+Now, you want to predict the height of someone weighing 125 lbs. This is within the data range of 100 to 200 lbs. Thus, when you use the regression model here, you *interpolate*.
+
+You also want to predict the height of someone weighing 250 lbs. This is outside the predictor data range. So, when you use the model here, you *extrapolate*. Extrapolation is generally not a good practice, and can result in false and nonsensical predictions.
+
+<center>
+```{r echo = FALSE, results = 'asis'}
+image = "https://imgs.xkcd.com/comics/extrapolating.png"
+cat(paste0('<img src="', image,  '"><br>')) 
+```
+<b>Image Source:</b> @extrapolating
+</center>
+
+## Why does it matter in practice?
+
+Regression is not just about fitting lines---it’s about interpreting and communicating relationships. This includes:
+
+- Showing how strongly variables are associated
+- Accounting for noise and randomness in data
+- Visualizing uncertainty through confidence bands and error margins
+- Choosing color and layout wisely so viewers don't misinterpret your results
+
+## Multiple linear regression
+
+This is an extension of simple linear regression that models the relationship between one dependent variable and two or more independent variables. Instead of fitting a line through points in two-dimensional space, multiple linear regression fits a hyperplane in a multidimensional feature space. The general form of the model for $n$ variables is:
+
+$$y=\beta_0+\sum_{i=1}^{n}\beta_nx_n+\epsilon$$
+
+Note the subscript for the variables, as opposed to the superscript in polynomial regression (essentially, polynomial regression is completely different from multiple linear regression).
+
+Multiple regression allows us to evaluate the influence of each variable while controlling for the others, making it a powerful tool for uncovering complex relationships in data. However, it also comes with assumptions---such as linearity, independence of errors, homoscedasticity, and the lack of multicollinearity---which must be checked to ensure the model's complete validity.
+
+> When the independent predictors are too strongly related to each other (i.e., each predictor is a linear combination of the others), the data is multicollinear.
+
+> When the spread, or the variance of the errors are roughly the same across all values of the predictors, the data is homoscedastic.
+
+> When the prediction errors, are not correlated with each other, one can say that the data is independent of errors.
+
+> When the relationship between each predictor and the outcome is assumed to be a straight line, the data is linear. Linearity describes how well a measurement or process stays proportional across different input values. 
+
+```{r echo=FALSE, warning=FALSE, fig.align = 'center'}
+library(ggplot2)
+library(grid)
+library(gridExtra)
+set.seed(402)
+x1 <- seq(0, 10, length.out = 100)
+y_linear <- 2 * x1 + rnorm(100, mean = 0, sd = 2)
+df1 <- data.frame(x = x1, y = y_linear)
+
+p1 <- ggplot(df1, aes(x = x, y = y)) +
+  geom_point(alpha = 0.2) +
+  geom_abline(slope = 2, intercept = 0, color = "red", linewidth = 1) +
+  labs(title = "Linearity", x = "Predictor (x)", y = "Outcome (y)") +
+  theme_minimal()
+
+x2 <- seq(0, 10, length.out = 100)
+y_homoscedastic <- 2 * x2 + rnorm(100, mean = 0, sd = 1)
+df2 <- data.frame(x = x2, y = y_homoscedastic)
+
+p2 <- ggplot(df2, aes(x = x, y = y)) +
+  geom_point(alpha = 0.2) +
+  geom_abline(slope = 2, intercept = 0, color = "red", linewidth = 1) +
+  labs(title = "Homoscedasticity", x = "Predictor (x)", y = "Outcome (y)") +
+  theme_minimal()
+
+errors <- rnorm(100)
+df3 <- data.frame(index = 1:100, error = errors)
+
+p3 <- ggplot(df3, aes(x = index, y = error)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Independence of Errors", x = "Observation index", y = "Error") +
+  theme_minimal()
+
+x4_1 <- seq(0, 10, length.out = 100)
+x4_2 <- x4_1 + rnorm(100, mean = 0, sd = 0.1)
+df4 <- data.frame(x1 = x4_1, x2 = x4_2)
+
+p4 <- ggplot(df4, aes(x = x1, y = x2)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Multicollinearity", x = "Predictor x1", y = "Predictor x2") +
+  theme_minimal()
+
+grid.arrange(p1, p2, p3, p4, ncol = 2, 
+             top = textGrob("Visualizing the assumptions in multiple linear regression",gp=gpar(fontsize=15,font=2)))
+```
+
+***
+
+<div style="text-align: center;">
+<a href="index.html" style="background-color:#2C3E50; color:white; padding:10px 16px; text-decoration:none; border-radius:5px;">Go back to tutorial</a>
+</div>
