@@ -88,7 +88,7 @@ By the end, you won’t just visualize better models, but more honest and interp
 
 # But first, what is regression?
 
-Source: @regression
+<b>Source:</b> @regression
 
 A simplified primer on regression would be the best way to simplify the visualization of confidence and uncertainty in correlations.
 
@@ -166,7 +166,7 @@ You also want to predict the height of someone weighing 250 lbs. This is outside
 image = "https://imgs.xkcd.com/comics/extrapolating.png"
 cat(paste0('<img src="', image,  '"><br>')) 
 ```
-Image Source: @extrapolating
+<b>Image Source:</b> @extrapolating
 </center>
 
 ## Why does regression matter in practice?
@@ -196,6 +196,51 @@ Multiple regression allows us to evaluate the influence of each variable while c
 
 > When the relationship between each predictor and the outcome is assumed to be a straight line, the data is linear. Linearity describes how well a measurement or process stays proportional across different input values. 
 
+```{r echo=FALSE, warning=FALSE, fig.align = 'center'}
+library(ggplot2)
+library(grid)
+library(gridExtra)
+set.seed(402)
+x1 <- seq(0, 10, length.out = 100)
+y_linear <- 2 * x1 + rnorm(100, mean = 0, sd = 2)
+df1 <- data.frame(x = x1, y = y_linear)
 
+p1 <- ggplot(df1, aes(x = x, y = y)) +
+  geom_point(alpha = 0.2) +
+  geom_abline(slope = 2, intercept = 0, color = "red", linewidth = 1) +
+  labs(title = "Linearity", x = "Predictor (x)", y = "Outcome (y)") +
+  theme_minimal()
+
+x2 <- seq(0, 10, length.out = 100)
+y_homoscedastic <- 2 * x2 + rnorm(100, mean = 0, sd = 1)
+df2 <- data.frame(x = x2, y = y_homoscedastic)
+
+p2 <- ggplot(df2, aes(x = x, y = y)) +
+  geom_point(alpha = 0.2) +
+  geom_abline(slope = 2, intercept = 0, color = "red", linewidth = 1) +
+  labs(title = "Homoscedasticity", x = "Predictor (x)", y = "Outcome (y)") +
+  theme_minimal()
+
+errors <- rnorm(100)
+df3 <- data.frame(index = 1:100, error = errors)
+
+p3 <- ggplot(df3, aes(x = index, y = error)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Independence of Errors", x = "Observation index", y = "Error") +
+  theme_minimal()
+
+x4_1 <- seq(0, 10, length.out = 100)
+x4_2 <- x4_1 + rnorm(100, mean = 0, sd = 0.1)
+df4 <- data.frame(x1 = x4_1, x2 = x4_2)
+
+p4 <- ggplot(df4, aes(x = x1, y = x2)) +
+  geom_point(alpha = 0.7) +
+  labs(title = "Multicollinearity", x = "Predictor x1", y = "Predictor x2") +
+  theme_minimal()
+
+grid.arrange(p1, p2, p3, p4, ncol = 2, 
+             top = textGrob("Visualizing the assumptions in multiple linear regression",gp=gpar(fontsize=15,font=2)))
+```
 
 # References
