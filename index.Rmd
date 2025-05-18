@@ -91,6 +91,55 @@ By the end, you won’t just visualize better models, but more honest and interp
 <a href="regression.html" style="background-color:#2C3E50; color:white; padding:10px 16px; text-decoration:none; border-radius:5px;">
 A primer on regression
 </a></div>
+<br>
+The above link will take you to a page that summarizes regression with every concept you will need to understand the visualization you will be making. The concepts in this reading may be directly referenced in this tutorial.
+<!---(add quotes and figures)--->
+
 ***
+
+# Preliminaries
+
+R primer
+
+some important R concepts, similarities with py
+
+what we are making (add above too)
+
+why this is a good way (use other plots)
+
+do a regression model
+
+introduce data
+
+make model
+
+breakdown of the model.
+
+how to visualize this (diff ways)
+
+construct plot.
+
+use of color.
+
+color theory
+
+titles and subtitles
+
+visceralization and accessibility; data feminism; effects of uncertainty
+
+confidence and significance
+
+value of null
+
+final plot
+
+```{r}
+library(palmerpenguins)
+penguins
+```
+
+```{python}
+
+```
 
 # References

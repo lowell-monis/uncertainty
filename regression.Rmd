@@ -58,6 +58,35 @@ $$y=\beta_0+\beta_1x+\epsilon$$
 
 where $x$ is the predictor (independent) variable, $y$ is the predicted (dependent) value, $\beta_0$ is the intercept value for the best-fit line, $\beta_1$ is the coefficient for the predictor variable (a one-unit increase in $x$ leads to a $\beta_1$ increase in $y$), and $\epsilon$ is the error term (difference between the observed value associated with $x$ and the predicted value from the regression equation, $y(x)$).
 
+```{r echo=FALSE, warning=FALSE, fig.align = 'center'}
+library(ggplot2)
+library(grid)
+library(gridExtra)
+
+reg_theme <- theme_minimal() +
+  theme(
+    plot.title = element_text(face='bold', size=15, hjust=0.5),
+    plot.margin = margin(10, 10, 20, 10)
+  )
+
+set.seed(402)
+x <- 1:100
+noise <- rnorm(100, mean = 0, sd = 30)
+y <- 3 * x + noise
+df_linear <- data.frame(x = x, y = y)
+
+ggplot(df_linear, aes(x, y)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "red", formula = y ~ x, fullrange = TRUE) +
+  labs(
+    title = "Visualizing simple linear regression",
+    x = "Predictor Variable (x)",
+    y = "Response Variable (y)"
+  ) + reg_theme
+  
+```
+
+
 ### 2. Polynomial Regression
 
 The goal of this method is to fit a curved function, rather than a linear one, to the given data. This method is used to capture non-linear trends. This is still, however, considered a linear model in terms of parameters, but it allows the curve to bend, making it more flexible. An example of this is modeling population growth.
@@ -72,12 +101,42 @@ $$y=\beta_0+\beta_1x +\beta_2x^2+\epsilon$$
 
 A polynomial regression model of degree 1 is an OLS model.
 
+```{r echo=FALSE, warning=FALSE, fig.align = 'center'}
+set.seed(402)
+x <- seq(-3, 3, length.out = 100)
+y <- 2 + 1.5 * x - 0.8 * x^2 + 0.3 * x^3 + rnorm(100, sd = 2)
+df_poly <- data.frame(x = x, y = y)
+
+ggplot(df_poly, aes(x, y)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, formula = y ~ poly(x, 3), color = "red") +
+  labs(title = "Visualizing third degree polynomial regression", x = "Predictor Variable (x)", y = "Response Variable (y)") +
+  reg_theme
+```
+
+
 ### 3. Logistic Regression
 
 The goal of this method is to predict binary outcomes (yes/no, pass/fail, true/false, etc.) by modeling the probability of class membership. Logistic regression is primarily used for classification. Logistic regression can be modeled by the following formula:
 
 $$P(y=1|x)=\frac{1}{1+e^{-(\beta_0+\beta_1x)}}$$
 If the probability returned by this function is high, the result will be 1, else 0. The function models continuous values, but it does not predict a continuous value, rather the *probability of a discrete event*.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+set.seed(402)
+x <- rnorm(100)
+prob <- 1 / (1 + exp(-(2 + 3 * x)))
+y <- rbinom(100, 1, prob)
+df_logistic <- data.frame(x = x, y = y)
+
+ggplot(df_logistic, aes(x, y)) +
+  geom_point(alpha = 0.6, position = position_jitter(height = 0.05)) +
+  stat_smooth(method = "glm", formula = y ~ x, se = TRUE, 
+              method.args = list(family = "binomial"), color = "red") +
+  labs(title = "Visualizing logistic regression using a sigmoid probability curve", x = "x", y = "Probability") +
+  reg_theme
+```
+
 
 ### Other Types of Regression
 
@@ -104,6 +163,32 @@ cat(paste0('<img src="', image,  '"><br>'))
 ```
 <b>Image Source:</b> @extrapolating
 </center>
+
+```{r}
+set.seed(402)
+x_full <- 0:10
+y_full <- 5 + 2 * x_full + rnorm(length(x_full), sd = 2)
+df_full <- data.frame(x = x_full, y = y_full)
+df_train <- subset(df_full, x >= 2 & x <= 8)
+
+ggplot(df_full, aes(x, y)) +
+  geom_point(color = "gray", size = 2) +
+  geom_point(data = df_train, aes(x, y), color = "blue", size = 2) +
+  geom_smooth(data = df_train, aes(x, y), method = "lm", se = FALSE, color = "red") +
+  geom_vline(xintercept = c(2, 8), linetype = "dashed", color = "black") +
+  annotate("text", x = 1, y = 25, label = "Extrapolation", angle = 90, vjust = -0.5, color = "darkred") +
+  annotate("text", x = 9, y = 25, label = "Extrapolation", angle = 90, vjust = -0.5, color = "darkred") +
+  annotate("text", x = 5, y = 25, label = "Interpolation", color = "darkgreen") +
+  labs(
+    x = "Predictor (x)",
+    y = "Outcome (y)",
+    caption = "Figure: Linear model trained on x = 2 to 8. Predictions within this range are interpolations; outside are extrapolations."
+  ) +
+  theme_minimal() +
+  theme(plot.caption = element_text(hjust = 0.5, face = "bold", size = 11))
+
+```
+
 
 ## Why does it matter in practice?
 
@@ -133,9 +218,6 @@ Multiple regression allows us to evaluate the influence of each variable while c
 > When the relationship between each predictor and the outcome is assumed to be a straight line, the data is linear. Linearity describes how well a measurement or process stays proportional across different input values. 
 
 ```{r echo=FALSE, warning=FALSE, fig.align = 'center'}
-library(ggplot2)
-library(grid)
-library(gridExtra)
 set.seed(402)
 x1 <- seq(0, 10, length.out = 100)
 y_linear <- 2 * x1 + rnorm(100, mean = 0, sd = 2)
