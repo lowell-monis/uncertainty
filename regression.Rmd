@@ -122,7 +122,7 @@ The goal of this method is to predict binary outcomes (yes/no, pass/fail, true/f
 $$P(y=1|x)=\frac{1}{1+e^{-(\beta_0+\beta_1x)}}$$
 If the probability returned by this function is high, the result will be 1, else 0. The function models continuous values, but it does not predict a continuous value, rather the *probability of a discrete event*.
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
 set.seed(402)
 x <- rnorm(100)
 prob <- 1 / (1 + exp(-(2 + 3 * x)))
@@ -164,31 +164,64 @@ cat(paste0('<img src="', image,  '"><br>'))
 <b>Image Source:</b> @extrapolating
 </center>
 
-```{r}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
 set.seed(402)
-x_full <- 0:10
-y_full <- 5 + 2 * x_full + rnorm(length(x_full), sd = 2)
+x_full <- -10:150
+y_full <- 5 + 2 * x_full + rnorm(length(x_full), sd = 10)
 df_full <- data.frame(x = x_full, y = y_full)
-df_train <- subset(df_full, x >= 2 & x <= 8)
+
+df_train <- subset(df_full, x >= 0 & x <= 100)
+
+model_train <- lm(y ~ x, data = df_train)
+
+df_extended <- data.frame(x = seq(-10, 150, length.out = 500))
+df_extended$y <- predict(model_train, newdata = df_extended)
+
+df_left <- subset(df_extended, x <= 0)
+df_center <- subset(df_extended, x >= 0 & x <= 100)
+df_right <- subset(df_extended, x >= 100)
 
 ggplot(df_full, aes(x, y)) +
-  geom_point(color = "gray", size = 2) +
-  geom_point(data = df_train, aes(x, y), color = "blue", size = 2) +
-  geom_smooth(data = df_train, aes(x, y), method = "lm", se = FALSE, color = "red") +
-  geom_vline(xintercept = c(2, 8), linetype = "dashed", color = "black") +
-  annotate("text", x = 1, y = 25, label = "Extrapolation", angle = 90, vjust = -0.5, color = "darkred") +
-  annotate("text", x = 9, y = 25, label = "Extrapolation", angle = 90, vjust = -0.5, color = "darkred") +
-  annotate("text", x = 5, y = 25, label = "Interpolation", color = "darkgreen") +
+  geom_point(color = "gray", size = 2, alpha = 0.5) +
+  geom_point(data = df_train, aes(x, y), color = "black", size = 2, alpha = 0.2) +
+  geom_line(data = df_left, aes(x, y), color = "red", linewidth = 1) +
+  geom_line(data = df_center, aes(x, y), color = "darkgreen", linewidth = 1) +
+  geom_line(data = df_right, aes(x, y), color = "red", linewidth = 1) +
+  geom_vline(xintercept = c(0, 100), linetype = "dashed", color = "black") +
+  annotate("text", x = -1, y = 125, label = "Extrapolation", angle = 90, vjust = -0.5, color = "darkred") +
+  annotate("text", x = 105, y = 25, label = "Extrapolation", angle = 90, vjust = -0.5, color = "darkred") +
+  annotate("text", x = 50, y = 25, label = "Interpolation", color = "darkgreen") +
   labs(
     x = "Predictor (x)",
     y = "Outcome (y)",
-    caption = "Figure: Linear model trained on x = 2 to 8. Predictions within this range are interpolations; outside are extrapolations."
+    title = "Visualizing interpolation and extrapolation on a \nsimple linear regression model"
   ) +
-  theme_minimal() +
-  theme(plot.caption = element_text(hjust = 0.5, face = "bold", size = 11))
-
+  reg_theme
 ```
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
+df_train_partial <- subset(df_full, x >= 0 & x <= 100)
+model_partial <- lm(y ~ x, data = df_train_partial)
 
+model_full <- lm(y ~ x, data = df_full)
+
+df_preds <- data.frame(x = seq(0, 150, length.out = 500))
+df_preds$y_partial <- predict(model_partial, newdata = df_preds)
+df_preds$y_full <- predict(model_full, newdata = df_preds)
+
+ggplot(df_full, aes(x, y)) +
+  geom_point(color = "gray", size = 2, alpha = 0.5) +
+  geom_line(data = df_preds, aes(x = x, y = y_partial), color = "darkgreen", linewidth = 1.2) +
+  geom_line(data = df_preds, aes(x = x, y = y_full), color = "blue", linewidth = 1.2, linetype = "dashed") +
+  annotate("text", x = 90, y = 15, label = "Partial Fit (0–100)", color = "darkgreen", hjust = 0) +
+  annotate("text", x = -9, y = max(df_preds$y_full), label = "Full Fit (-10–110)", color = "blue", hjust = 0) +
+  labs(
+    x = "Predictor (x)",
+    y = "Outcome (y)",
+    title = "Comparing Linear Models Trained on Different Data Ranges",
+    subtitle = "Solid green: trained on x = 0–100 | Dashed blue: trained on x = -10–110"
+  ) +
+  reg_theme
+```
 
 ## Why does it matter in practice?
 
