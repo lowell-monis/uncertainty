@@ -138,8 +138,31 @@ library(palmerpenguins)
 penguins
 ```
 
-```{python}
+```{python echo=FALSE, warning=FALSE, fig.align = 'center'}
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
+np.random.seed(402)
+n = 200
+x1 = np.random.uniform(0, 10, n)
+x2 = np.random.uniform(0, 10, n)
+y = 3 + 2 * x1 + 1.5 * x2 + np.random.normal(0, 2, n)
+
+xx, zz = np.meshgrid(np.linspace(0, 10, 20), np.linspace(0, 10, 20))
+yy = 3 + 2 * xx + 1.5 * zz  # Plane equation from true model
+
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+_=ax.scatter(x1, x2, y, color='black', alpha=0.5, label="Data points")
+_=ax.plot_surface(xx, zz, yy, color='skyblue', alpha=0.6, edgecolor='none')
+
+_=ax.set_xlabel('x1')
+_=ax.set_ylabel('x2')
+_=ax.set_zlabel('y')
+_=ax.set_title('Visualizing multiple linear regression with two predictors', fontsize=18, fontweight='bold', fontname='Arial')
+plt.tight_layout()
+plt.show()
 ```
 
 # References

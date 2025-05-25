@@ -16,6 +16,8 @@ output:
       in_header: "copy-code.html"
     css: theme.css
 
+bibliography: biblio_reg.bib
+
 params:
   version: 1.0
 ---
@@ -27,6 +29,8 @@ params:
 </div>
 
 ***
+
+*Created with the assistance of @regression.*
 
 Regression analysis is the process of estimating the relationship between a dependent variable (what you're trying to predict) and one or more independent variables (the predictors). At its core, regression tries to fit a function that best explains the observed data under some error criterion.
 
@@ -66,7 +70,8 @@ library(gridExtra)
 reg_theme <- theme_minimal() +
   theme(
     plot.title = element_text(face='bold', size=15, hjust=0.5),
-    plot.margin = margin(10, 10, 20, 10)
+    plot.margin = margin(10, 10, 20, 10),
+    legend.position = "bottom"
   )
 
 set.seed(402)
@@ -199,28 +204,32 @@ ggplot(df_full, aes(x, y)) +
   reg_theme
 ```
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
-df_train_partial <- subset(df_full, x >= 0 & x <= 100)
+df_train_partial <- subset(df_full, x >= 50 & x <= 75)
 model_partial <- lm(y ~ x, data = df_train_partial)
 
 model_full <- lm(y ~ x, data = df_full)
 
-df_preds <- data.frame(x = seq(0, 150, length.out = 500))
+df_preds <- data.frame(x = seq(-10, 150, length.out = 500))
 df_preds$y_partial <- predict(model_partial, newdata = df_preds)
 df_preds$y_full <- predict(model_full, newdata = df_preds)
 
+df_preds <- rbind(
+  data.frame(x = df_preds$x, y = df_preds$y_partial, model = "Trained on [50, 75]"),
+  data.frame(x = df_preds$x, y = df_preds$y_full, model = "Trained on full data")
+)
+
 ggplot(df_full, aes(x, y)) +
-  geom_point(color = "gray", size = 2, alpha = 0.5) +
-  geom_line(data = df_preds, aes(x = x, y = y_partial), color = "darkgreen", linewidth = 1.2) +
-  geom_line(data = df_preds, aes(x = x, y = y_full), color = "blue", linewidth = 1.2, linetype = "dashed") +
-  annotate("text", x = 90, y = 15, label = "Partial Fit (0–100)", color = "darkgreen", hjust = 0) +
-  annotate("text", x = -9, y = max(df_preds$y_full), label = "Full Fit (-10–110)", color = "blue", hjust = 0) +
+  geom_point(color = "gray", alpha = 0.5) +
+  geom_line(data = df_preds, aes(x = x, y = y, color = model), linewidth=0.8) +
+  scale_color_manual(values = c("Trained on [50, 75]" = "orange", "Trained on full data" = "purple")) +
   labs(
     x = "Predictor (x)",
     y = "Outcome (y)",
     title = "Comparing Linear Models Trained on Different Data Ranges",
-    subtitle = "Solid green: trained on x = 0–100 | Dashed blue: trained on x = -10–110"
+    color = "Model Fit",
   ) +
   reg_theme
+
 ```
 
 ## Why does it matter in practice?
@@ -294,8 +303,41 @@ grid.arrange(p1, p2, p3, p4, ncol = 2,
              top = textGrob("Visualizing the assumptions in multiple linear regression",gp=gpar(fontsize=15,font=2)))
 ```
 
+```{python echo=FALSE, warning=FALSE, fig.align = 'center'}
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+np.random.seed(402)
+n = 200
+x1 = np.random.uniform(0, 10, n)
+x2 = np.random.uniform(0, 10, n)
+y = 3 + 2 * x1 + 1.5 * x2 + np.random.normal(0, 2, n)
+
+xx, zz = np.meshgrid(np.linspace(0, 10, 20), np.linspace(0, 10, 20))
+yy = 3 + 2 * xx + 1.5 * zz  # Plane equation from true model
+
+fig = plt.figure(figsize=(10, 7))
+ax = fig.add_subplot(111, projection='3d')
+_=ax.scatter(x1, x2, y, color='black', alpha=0.5, label="Data points")
+_=ax.plot_surface(xx, zz, yy, color='skyblue', alpha=0.6, edgecolor='none')
+
+_=ax.set_xlabel('x1')
+_=ax.set_ylabel('x2')
+_=ax.set_zlabel('y')
+_=ax.set_title('Visualizing multiple linear regression with two predictors', fontsize=18, fontweight='bold', fontname='Arial')
+plt.tight_layout()
+plt.show()
+```
+<center>
+Created using Python<br>
+Generative AI was used in the creation of this plot. @chat1
+</center>
+
 ***
 
 <div style="text-align: center;">
 <a href="index.html" style="background-color:#2C3E50; color:white; padding:10px 16px; text-decoration:none; border-radius:5px;">Go back to tutorial</a>
 </div>
+
+# References
