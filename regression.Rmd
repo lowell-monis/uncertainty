@@ -16,7 +16,7 @@ output:
       in_header: "copy-code.html"
     css: theme.css
 
-bibliography: biblio_reg.bib
+bibliography: "bibtex/biblio_reg.bib"
 
 params:
   version: 1.0
