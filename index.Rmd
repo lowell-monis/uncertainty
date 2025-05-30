@@ -138,6 +138,8 @@ library(palmerpenguins)
 penguins
 ```
 
+Doesn't this look complicated?
+
 ```{python echo=FALSE, warning=FALSE, fig.align = 'center'}
 import numpy as np
 import matplotlib.pyplot as plt
